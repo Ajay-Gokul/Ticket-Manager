@@ -4,8 +4,9 @@ from uuid import UUID
 from app.db.database import get_db
 from app.models.schemas import TicketCreate, TicketUpdate, TicketResponse
 from app.services.ticket_service import TicketService
-from app.api.auth import get_current_user
+from app.api.deps import get_current_user
 from app.models.db_models import User
+from app.core.constants import STATUS_IN_PROGRESS
 from typing import List
 
 router = APIRouter()
@@ -37,7 +38,7 @@ def assign_to_me(ticket_id: UUID, db: Session = Depends(get_db), current_user: U
     # Update both the assignee and the status to 'Active'
     update_data = TicketUpdate(
         AssigneeUID=current_user.UID,
-        StatusUID=UUID('4FAF6585-8EFC-4AD4-AEDD-159A1D2FF57B')
+        StatusUID=STATUS_IN_PROGRESS
     )
     return ticket_service.update_existing_ticket(ticket_id, update_data)
 

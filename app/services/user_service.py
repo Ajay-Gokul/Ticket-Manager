@@ -1,19 +1,19 @@
 from sqlalchemy.orm import Session
+from jose import jwt, JWTError
 from app.repositories.user_repository import UserRepository
 from app.repositories.role_repository import RoleRepository
 from app.services.auth_service import AuthService
 from app.models.schemas import UserCreate, UserLogin, Token
+from app.models.db_models import User
 from app.core.exceptions import ConflictException, UnauthorizedException, ServerErrorException
+from app.core.config import settings
 
 class UserService:
     def __init__(self, db: Session):
         self.user_repo = UserRepository(db)
         self.role_repo = RoleRepository(db)
 
-    def register_user(self, user_in: UserCreate):
-        if self.user_repo.get_user_by_name(user_in.Name):
-            raise ConflictException("Username already registered")
-        
+    def register_user(self, user_in: UserCreate):               
         if self.user_repo.get_user_by_email(user_in.Email):
             raise ConflictException("Email already registered")
         
@@ -32,3 +32,20 @@ class UserService:
         
         access_token = AuthService.create_access_token(data={"sub": user.Email})
         return Token(access_token=access_token, token_type="bearer")
+
+    def get_user_by_email(self, email: str):
+        return self.user_repo.get_user_by_email(email)
+
+    def get_current_user(self, token: str) -> User:
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            email: str = payload.get("sub")
+            if email is None:
+                raise UnauthorizedException("Could not validate credentials")
+        except JWTError:
+            raise UnauthorizedException("Could not validate credentials")
+        
+        user = self.user_repo.get_user_by_email(email)
+        if user is None:
+            raise UnauthorizedException("User not found")
+        return user

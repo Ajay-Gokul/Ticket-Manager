@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from app.models.db_models import Ticket
 from app.models.schemas import TicketCreate, TicketUpdate
+from app.core.constants import STATUS_OPEN
 
 class TicketRepository:
     def __init__(self, db: Session):
@@ -26,7 +27,7 @@ class TicketRepository:
         db_ticket = Ticket(
             Title=ticket_in.Title,
             Description=ticket_in.Description,
-            StatusUID='A53C14A8-F113-46EF-A634-269484A1AABE', # 'Open' status UID
+            StatusUID=STATUS_OPEN, # Default 'Open' status
             Priority=ticket_in.Priority,
             CreatorUID=creator_uid,
             AssigneeUID=None
@@ -48,3 +49,31 @@ class TicketRepository:
     def delete_ticket(self, db_ticket: Ticket):
         self.db.delete(db_ticket)
         self.db.commit()
+
+    # def get_tickets_by_status_sp(self, status_uid: UUID):
+    #     result = self.db.execute(
+    #         text("EXEC GetTicketsByStatus :status_uid"),
+    #         {"status_uid": str(status_uid)}
+    #     )
+
+    #     tickets = [Ticket(**row._mapping) for row in result]
+    #     return tickets
+
+    # def create_ticket_sp(self, ticket_in: TicketCreate, creator_uid: UUID):
+    #     self.db.execute(
+    #         text("""
+    #         EXEC CreateTicket 
+    #             :title,
+    #             :description,
+    #             :priority,
+    #             :creator_uid
+    #         """),
+    #         {
+    #             "title": ticket_in.Title,
+    #             "description": ticket_in.Description,
+    #             "priority": ticket_in.Priority,
+    #             "creator_uid": str(creator_uid)
+    #         }
+    #     )
+
+    #     self.db.commit()
