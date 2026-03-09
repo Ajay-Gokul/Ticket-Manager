@@ -13,13 +13,13 @@ class UserRepository:
     def get_user_by_email(self, email: str) -> User | None:
         return self.db.query(User).filter(User.Email == email).first()
 
-    def create_user(self, user_in: UserCreate) -> User:
+    def create_user(self, user_in: UserCreate, role_uid: UUID) -> User:
         hashed_password = AuthService.get_password_hash(user_in.Password)
         db_user = User(
             Name=user_in.Name,
             Email=user_in.Email,
             PasswordHash=hashed_password,
-            RoleUID=user_in.RoleUID
+            RoleUID=role_uid
         )
         self.db.add(db_user)
         self.db.commit()
