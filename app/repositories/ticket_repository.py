@@ -13,14 +13,23 @@ class TicketRepository:
     def get_all_tickets(self):
         return self.db.query(Ticket).all()
 
-    def create_ticket(self, ticket_in: TicketCreate) -> Ticket:
+    def get_unassigned_tickets(self):
+        return self.db.query(Ticket).filter(Ticket.AssigneeUID == None).all()
+
+    def get_tickets_by_creator(self, user_id: UUID):
+        return self.db.query(Ticket).filter(Ticket.CreatorUID == user_id).all()
+
+    def get_tickets_by_assignee(self, user_id: UUID):
+        return self.db.query(Ticket).filter(Ticket.AssigneeUID == user_id).all()
+
+    def create_ticket(self, ticket_in: TicketCreate, creator_uid: UUID) -> Ticket:
         db_ticket = Ticket(
             Title=ticket_in.Title,
             Description=ticket_in.Description,
-            StatusUID=ticket_in.StatusUID,
+            StatusUID='A53C14A8-F113-46EF-A634-269484A1AABE', # 'Open' status UID
             Priority=ticket_in.Priority,
-            CreatorUID=ticket_in.CreatorUID,
-            AssigneeUID=None # As per requirement, creating should not be assigned
+            CreatorUID=creator_uid,
+            AssigneeUID=None
         )
         self.db.add(db_ticket)
         self.db.commit()

@@ -8,10 +8,9 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     Password: str
-    RoleUID: UUID
 
 class UserLogin(BaseModel):
-    Username: str # Name in database
+    Email: EmailStr
     Password: str
 
 class Token(BaseModel):
@@ -24,11 +23,13 @@ class TokenData(BaseModel):
 class TicketBase(BaseModel):
     Title: str
     Description: str
-    StatusUID: UUID
     Priority: str
+    StatusUID: UUID
 
-class TicketCreate(TicketBase):
-    CreatorUID: UUID
+class TicketCreate(BaseModel): # Separate from TicketBase for creation
+    Title: str
+    Description: str
+    Priority: str
 
 class TicketUpdate(BaseModel):
     Title: str | None = None
