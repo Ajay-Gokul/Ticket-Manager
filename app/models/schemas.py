@@ -20,3 +20,29 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: str | None = None
+
+class TicketBase(BaseModel):
+    Title: str
+    Description: str
+    StatusUID: UUID
+    Priority: str
+
+class TicketCreate(TicketBase):
+    CreatorUID: UUID
+
+class TicketUpdate(BaseModel):
+    Title: str | None = None
+    Description: str | None = None
+    StatusUID: UUID | None = None
+    Priority: str | None = None
+    AssigneeUID: UUID | None = None
+
+class TicketResponse(TicketBase):
+    UID: UUID
+    CreatorUID: UUID
+    AssigneeUID: UUID | None = None
+    CreatedAt: datetime
+    UpdatedAt: datetime
+
+    class Config:
+        from_attributes = True
