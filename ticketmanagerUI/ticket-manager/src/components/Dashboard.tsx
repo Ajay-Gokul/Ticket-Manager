@@ -147,7 +147,7 @@ const Dashboard: React.FC = () => {
               className="create-btn"
               onClick={() => setShowCreateForm(true)}
             >
-              New Ticket
+              Create New Ticket
             </button>
           )}
         </div>
@@ -159,7 +159,7 @@ const Dashboard: React.FC = () => {
           <div className="loading-spinner">Loading tickets...</div>
         ) : tickets.length === 0 ? (
           <div className="empty-state">
-            <p>no ticket</p>
+            <p>No tickets found.</p>
           </div>
         ) : (
           <div className="ticket-grid">
