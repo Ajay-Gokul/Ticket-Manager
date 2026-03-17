@@ -1,3 +1,4 @@
+from uuid import UUID
 from sqlalchemy.orm import Session
 from app.models.db_models import User
 from app.models.schemas import UserCreate
@@ -12,6 +13,9 @@ class UserRepository:
 
     def get_user_by_email(self, email: str) -> User | None:
         return self.db.query(User).filter(User.Email == email).first()
+
+    def get_user_by_uid(self, uid: UUID) -> User | None:
+        return self.db.query(User).filter(User.UID == uid).first()
 
     def create_user(self, user_in: UserCreate, role_uid: UUID) -> User:
         hashed_password = AuthService.get_password_hash(user_in.Password)

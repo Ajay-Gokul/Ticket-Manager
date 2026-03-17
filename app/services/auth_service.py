@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -17,10 +18,22 @@ class AuthService:
     @staticmethod
     def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()
+        now = datetime.now(timezone.utc)
+        
         if expires_delta:
-            expire = datetime.now(timezone.utc) + expires_delta
+            expire = now + expires_delta
         else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        to_encode.update({"exp": expire})
+            expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+            
+        to_encode.update({
+            "exp": expire,
+            "iat": now,
+            "nbf": now,
+            "jti": str(uuid.uuid4()),
+            "iss": settings.JWT_ISSUER,
+            "aud": settings.JWT_AUDIENCE,
+            "type": "access"
+        })
+        
         encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return encoded_jwt

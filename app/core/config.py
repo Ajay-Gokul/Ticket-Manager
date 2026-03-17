@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    JWT_ISSUER: str = "TicketManagerAPI"
+    JWT_AUDIENCE: str = "TicketManagerApp"
 
     model_config = SettingsConfigDict(env_file=".env")
 

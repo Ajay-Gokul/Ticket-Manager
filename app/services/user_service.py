@@ -30,7 +30,8 @@ class UserService:
         if not user or not AuthService.verify_password(user_login.Password, user.PasswordHash):
             raise UnauthorizedException("Incorrect email or password")
         
-        access_token = AuthService.create_access_token(data={"sub": user.Email})
+h        # Security: Use User UID as subject instead of Email
+        access_token = AuthService.create_access_token(data={"sub": str(user.UID)})
         return Token(access_token=access_token, token_type="bearer")
 
     def get_user_by_email(self, email: str):
@@ -38,14 +39,20 @@ class UserService:
 
     def get_current_user(self, token: str) -> User:
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-            email: str = payload.get("sub")
-            if email is None:
+            payload = jwt.decode(
+                token, 
+                settings.SECRET_KEY, 
+                algorithms=[settings.ALGORITHM],
+                issuer=settings.JWT_ISSUER,
+                audience=settings.JWT_AUDIENCE
+            )
+            user_id: str = payload.get("sub")
+            if user_id is None or payload.get("type") != "access":
                 raise UnauthorizedException("Could not validate credentials")
         except JWTError:
             raise UnauthorizedException("Could not validate credentials")
         
-        user = self.user_repo.get_user_by_email(email)
+        user = self.user_repo.get_user_by_uid(user_id)
         if user is None:
             raise UnauthorizedException("User not found")
         return user
